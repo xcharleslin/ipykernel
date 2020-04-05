@@ -46,7 +46,8 @@ class IPythonKernel(KernelBase):
         if self.shell is not None:
             self.shell.user_module = new
 
-    user_ns = Instance(dict, args=None, allow_none=True)
+    # Avoid typechecking since we will be using a custom dictionary class.
+    user_ns = Any()
     def _user_ns_changed(self, name, old, new):
         if self.shell is not None:
             self.shell.user_ns = new
@@ -370,14 +371,14 @@ class IPythonKernel(KernelBase):
 
     def _experimental_do_complete(self, code, cursor_pos):
         """
-        Experimental completions from IPython, using Jedi. 
+        Experimental completions from IPython, using Jedi.
         """
         if cursor_pos is None:
             cursor_pos = len(code)
         with _provisionalcompleter():
             raw_completions = self.shell.Completer.completions(code, cursor_pos)
             completions = list(_rectify_completions(code, raw_completions))
-            
+
             comps = []
             for comp in completions:
                 comps.append(dict(
